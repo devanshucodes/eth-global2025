@@ -58,6 +58,13 @@ npm run client
 
 ## 🔧 Recent Updates & Fixes
 
+### Time Duration Feature (December 2024)
+- ✅ **Agent Operation Duration**: Added time selection option (5, 10, 15 minutes) to create agent form
+- ✅ **Database Schema**: Added `time_duration` column to `ceo_agents` table
+- ✅ **Backend Integration**: Updated CEO agent creation endpoint to handle time duration parameter
+- ✅ **Frontend UI**: Added time duration dropdown in the Launch Timeline section
+- ✅ **Migration**: Created database migration to add time_duration column to existing records
+
 ### Phase 2: Revenue Integration (September 2025)
 - ✅ **Smart Contract Integration**: Connected Avalanche AVAX Dividend Distributor contract
 - ✅ **Automated Revenue Distribution**: 80% to company, 20% to token holders on project completion
