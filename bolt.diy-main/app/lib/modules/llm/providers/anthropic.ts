@@ -5,24 +5,34 @@ import type { IProviderSetting } from '~/types/model';
 import { createAnthropic } from '@ai-sdk/anthropic';
 
 export default class AnthropicProvider extends BaseProvider {
-  name = 'ASI:One';
-  getApiKeyLink = 'https://docs.asi1.ai/docs/';
+  name = 'Anthropic';
+  getApiKeyLink = 'https://console.anthropic.com/';
 
   config = {
-    apiTokenKey: 'ASI_ONE_API_KEY',
+    apiTokenKey: 'ANTHROPIC_API_KEY',
   };
 
   staticModels: ModelInfo[] = [
-    /*
-     * ASI:One Mini: Web3-native LLM for agentic AI
-     * This is the only model available in this customized version
-     */
     {
-      name: 'asi1-mini',
-      label: 'ASI:One Mini',
-      provider: 'ASI:One',
+      name: 'claude-3-5-sonnet-20241022',
+      label: 'Claude 3.5 Sonnet',
+      provider: 'Anthropic',
       maxTokenAllowed: 200000,
-      maxCompletionTokens: 128000,
+      maxCompletionTokens: 8192,
+    },
+    {
+      name: 'claude-3-5-haiku-20241022',
+      label: 'Claude 3.5 Haiku',
+      provider: 'Anthropic',
+      maxTokenAllowed: 200000,
+      maxCompletionTokens: 8192,
+    },
+    {
+      name: 'claude-3-opus-20240229',
+      label: 'Claude 3 Opus',
+      provider: 'Anthropic',
+      maxTokenAllowed: 200000,
+      maxCompletionTokens: 4096,
     },
   ];
 
@@ -31,8 +41,35 @@ export default class AnthropicProvider extends BaseProvider {
     settings?: IProviderSetting,
     serverEnv?: Record<string, string>,
   ): Promise<ModelInfo[]> {
-    // Return empty array to only use static models (ASI:One Mini only)
-    return [];
+    const { apiKey } = this.getProviderBaseUrlAndKey({
+      apiKeys,
+      providerSettings: settings,
+      serverEnv: serverEnv as any,
+      defaultBaseUrlKey: '',
+      defaultApiTokenKey: 'ANTHROPIC_API_KEY',
+    });
+
+    if (!apiKey) {
+      return [];
+    }
+
+    try {
+      const anthropic = createAnthropic({ apiKey });
+      const models = await anthropic.listModels();
+      
+      return models.data
+        .filter((model: any) => model.id.startsWith('claude-'))
+        .map((model: any) => ({
+          name: model.id,
+          label: model.id.replace('claude-', 'Claude ').replace(/-/g, ' '),
+          provider: 'Anthropic',
+          maxTokenAllowed: 200000,
+          maxCompletionTokens: 8192,
+        }));
+    } catch (error) {
+      console.error('Error fetching Anthropic models:', error);
+      return [];
+    }
   }
 
   getModelInstance: (options: {
@@ -47,11 +84,11 @@ export default class AnthropicProvider extends BaseProvider {
       providerSettings,
       serverEnv: serverEnv as any,
       defaultBaseUrlKey: '',
-      defaultApiTokenKey: 'ASI_ONE_API_KEY',
+      defaultApiTokenKey: 'ANTHROPIC_API_KEY',
     });
+    
     const anthropic = createAnthropic({
       apiKey,
-      headers: { 'anthropic-beta': 'output-128k-2025-02-19' },
     });
 
     return anthropic(model);
