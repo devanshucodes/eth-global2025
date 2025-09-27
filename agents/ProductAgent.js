@@ -1,6 +1,6 @@
-const ClaudeAgent = require('./ClaudeAgent');
+const ASIOneAgent = require('./ASIOneAgent');
 
-class ProductAgent extends ClaudeAgent {
+class ProductAgent extends ASIOneAgent {
   constructor(apiKey) {
     super('Product Agent', 'Product strategy and concept development', apiKey);
   }

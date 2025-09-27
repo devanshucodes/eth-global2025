@@ -5,22 +5,22 @@ import type { IProviderSetting } from '~/types/model';
 import { createAnthropic } from '@ai-sdk/anthropic';
 
 export default class AnthropicProvider extends BaseProvider {
-  name = 'Anthropic';
-  getApiKeyLink = 'https://console.anthropic.com/settings/keys';
+  name = 'ASI:One';
+  getApiKeyLink = 'https://docs.asi1.ai/docs/';
 
   config = {
-    apiTokenKey: 'ANTHROPIC_API_KEY',
+    apiTokenKey: 'ASI_ONE_API_KEY',
   };
 
   staticModels: ModelInfo[] = [
     /*
-     * Claude 3.7 Sonnet: 200k context, most advanced model with hybrid reasoning
+     * ASI:One Mini: Web3-native LLM for agentic AI
      * This is the only model available in this customized version
      */
     {
-      name: 'claude-3-7-sonnet-20250219',
-      label: 'Claude 3.7 Sonnet',
-      provider: 'Anthropic',
+      name: 'asi1-mini',
+      label: 'ASI:One Mini',
+      provider: 'ASI:One',
       maxTokenAllowed: 200000,
       maxCompletionTokens: 128000,
     },
@@ -31,7 +31,7 @@ export default class AnthropicProvider extends BaseProvider {
     settings?: IProviderSetting,
     serverEnv?: Record<string, string>,
   ): Promise<ModelInfo[]> {
-    // Return empty array to only use static models (Claude 3.5 Sonnet only)
+    // Return empty array to only use static models (ASI:One Mini only)
     return [];
   }
 
@@ -47,7 +47,7 @@ export default class AnthropicProvider extends BaseProvider {
       providerSettings,
       serverEnv: serverEnv as any,
       defaultBaseUrlKey: '',
-      defaultApiTokenKey: 'ANTHROPIC_API_KEY',
+      defaultApiTokenKey: 'ASI_ONE_API_KEY',
     });
     const anthropic = createAnthropic({
       apiKey,

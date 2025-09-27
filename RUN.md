@@ -5,7 +5,7 @@
 ```bash
 # 1. Setup environment
 cp env.example .env
-# Edit .env and add your Claude API key
+# Edit .env and add your ASI:One API key
 
 # 2. Install dependencies
 npm install
@@ -29,7 +29,7 @@ REACT_APP_API_URL=http://localhost:5001 PORT=3001 npm run client  # Frontend
 ### **Prerequisites**
 - Node.js (v14 or higher)
 - npm (comes with Node.js)
-- Claude API key from Anthropic
+- ASI:One API key from ASI Alliance
 - (Optional) Avalanche wallet private key for blockchain features
 
 ### **Step 1: Clone & Navigate**
@@ -48,9 +48,8 @@ nano .env  # or use any text editor
 
 **Required `.env` Configuration:**
 ```bash
-# REQUIRED: Claude API Configuration
-CLAUDE_API_KEY=sk-ant-your-actual-claude-api-key-here
-CLAUDE_MODEL=claude-3-haiku-20240307
+# REQUIRED: ASI:One API Configuration
+ASI_ONE_API_KEY=sk_your-actual-asi-one-api-key-here
 
 # Server Configuration
 PORT=5000
@@ -177,7 +176,7 @@ Error: listen EADDRINUSE: address already in use :::5000
    lsof -i :3000  # Check port 3000
    ```
 
-### **Claude API Key Issues**
+### **ASI:One API Key Issues**
 ```bash
 # Test your API key
 curl -X GET http://localhost:5001/api/agents/test-api-key
@@ -221,16 +220,12 @@ curl http://localhost:5173
 ### **"Generate New Idea" Not Working**
 **Issue**: Button shows "Generating..." but no ideas appear
 
-**Cause**: Outdated Claude model name in .env file
+**Cause**: Invalid ASI:One API key format
 
 **Fix**:
 ```bash
-# Edit .env file and change this line:
-CLAUDE_MODEL=claude-3-sonnet-20240229  # ❌ Old, deprecated model
-
-# To one of these working models:
-CLAUDE_MODEL=claude-3-5-sonnet-20241022  # ✅ Latest Sonnet (best quality)
-CLAUDE_MODEL=claude-3-haiku-20240307     # ✅ Haiku (faster, cheaper)
+# Edit .env file and ensure this line:
+ASI_ONE_API_KEY=sk_your-actual-asi-one-api-key-here  # ✅ Correct format
 
 # Then restart the server:
 pkill -f "node server.js"
@@ -268,7 +263,7 @@ PORT=5001 npm start
 ### **5. Website Development**
 - When "Developer Agent" becomes clickable
 - Click to open Bolt.diy integration at [http://localhost:5173](http://localhost:5173)
-- Automated website creation with Claude 3.7 Sonnet
+- Automated website creation with ASI:One Mini
 - Custom "Team Zero" branding with streamlined interface
 
 ---
@@ -283,7 +278,7 @@ POST /api/agents/develop-product    # Develop product concept
 POST /api/agents/marketing-strategy # Create marketing strategy
 POST /api/agents/technical-strategy # Create technical strategy
 POST /api/agents/bolt-prompt       # Generate website prompt
-GET  /api/agents/test-api-key      # Test Claude API key
+GET  /api/agents/test-api-key      # Test ASI:One API key
 ```
 
 ### **Finance Endpoints**
@@ -300,8 +295,8 @@ GET  /api/finance/token-holders       # Token holder list
 # Test backend
 curl http://localhost:5001/api/agents/test-api-key
 
-# Test Claude API integration
-curl http://localhost:5001/api/agents/test-claude-api
+# Test ASI:One API integration
+curl http://localhost:5001/api/agents/test-asi-one-api
 ```
 
 ---
@@ -311,7 +306,7 @@ curl http://localhost:5001/api/agents/test-claude-api
 ```
 zmc-main/
 ├── agents/                 # AI Agent implementations
-│   ├── ClaudeAgent.js     # Base agent class
+│   ├── ASIOneAgent.js     # Base agent class
 │   ├── CEOAgent.js        # CEO agent
 │   ├── ResearchAgent.js   # Research agent
 │   ├── ProductAgent.js    # Product agent
@@ -355,8 +350,8 @@ zmc-main/
 - Use different keys for development/production
 
 ### **API Keys**
-- Claude API key format: `sk-ant-...`
-- Get from: [https://console.anthropic.com](https://console.anthropic.com)
+- ASI:One API key format: `sk_...`
+- Get from: [https://docs.asi1.ai/docs/](https://docs.asi1.ai/docs/)
 - Monitor usage to avoid unexpected charges
 
 ### **Blockchain**
@@ -471,7 +466,7 @@ NODE_ENV=development DEBUG=* npm start
 Database initialized successfully
 ✅ Web3 Service initialized successfully
 AI Company server running on port 5001
-🔑 [SERVER] CLAUDE_API_KEY exists: true
+🔑 [SERVER] ASI_ONE_API_KEY exists: true
 ```
 
 ### **Frontend Started Successfully**

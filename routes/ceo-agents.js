@@ -9,8 +9,8 @@ const dbPath = process.env.DB_PATH || './database/ai_company.db';
 const db = new sqlite3.Database(dbPath);
 
 // Initialize agents
-const researchAgent = new ResearchAgent(process.env.CLAUDE_API_KEY);
-const productAgent = new ProductAgent(process.env.CLAUDE_API_KEY);
+const researchAgent = new ResearchAgent(process.env.ASI_ONE_API_KEY);
+const productAgent = new ProductAgent(process.env.ASI_ONE_API_KEY);
 
 // Get all CEO agents
 router.get('/', (req, res) => {

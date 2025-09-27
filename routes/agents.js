@@ -9,15 +9,15 @@ const HeadOfEngineeringAgent = require('../agents/HeadOfEngineeringAgent');
 const db = require('../database/setup');
 
 // Initialize agents
-console.log('🔑 [DEBUG] CLAUDE_API_KEY exists:', !!process.env.CLAUDE_API_KEY);
-console.log('🔑 [DEBUG] CLAUDE_API_KEY length:', process.env.CLAUDE_API_KEY?.length || 0);
-console.log('🔑 [DEBUG] CLAUDE_API_KEY starts with sk-ant:', process.env.CLAUDE_API_KEY?.startsWith('sk-ant') || false);
-const ceoAgent = new CEOAgent(process.env.CLAUDE_API_KEY);
-const researchAgent = new ResearchAgent(process.env.CLAUDE_API_KEY);
-const productAgent = new ProductAgent(process.env.CLAUDE_API_KEY);
-const cmoAgent = new CMOAgent(process.env.CLAUDE_API_KEY);
-const ctoAgent = new CTOAgent(process.env.CLAUDE_API_KEY);
-const headOfEngineeringAgent = new HeadOfEngineeringAgent(process.env.CLAUDE_API_KEY);
+console.log('🔑 [DEBUG] ASI_ONE_API_KEY exists:', !!process.env.ASI_ONE_API_KEY);
+console.log('🔑 [DEBUG] ASI_ONE_API_KEY length:', process.env.ASI_ONE_API_KEY?.length || 0);
+console.log('🔑 [DEBUG] ASI_ONE_API_KEY starts with sk_:', process.env.ASI_ONE_API_KEY?.startsWith('sk_') || false);
+const ceoAgent = new CEOAgent(process.env.ASI_ONE_API_KEY);
+const researchAgent = new ResearchAgent(process.env.ASI_ONE_API_KEY);
+const productAgent = new ProductAgent(process.env.ASI_ONE_API_KEY);
+const cmoAgent = new CMOAgent(process.env.ASI_ONE_API_KEY);
+const ctoAgent = new CTOAgent(process.env.ASI_ONE_API_KEY);
+const headOfEngineeringAgent = new HeadOfEngineeringAgent(process.env.ASI_ONE_API_KEY);
 
 // Generate ideas
 router.post('/generate-ideas', async (req, res) => {
@@ -26,10 +26,10 @@ router.post('/generate-ideas', async (req, res) => {
     
     // Test API key directly
     console.log('🔑 [ROUTE] Testing API key directly...');
-    console.log('🔑 [ROUTE] API Key length:', process.env.CLAUDE_API_KEY?.length);
-    console.log('🔑 [ROUTE] API Key starts with sk-ant:', process.env.CLAUDE_API_KEY?.startsWith('sk-ant'));
-    console.log('🔑 [ROUTE] API Key first 20 chars:', process.env.CLAUDE_API_KEY?.substring(0, 20));
-    console.log('🔑 [ROUTE] API Key last 20 chars:', process.env.CLAUDE_API_KEY?.substring(-20));
+    console.log('🔑 [ROUTE] API Key length:', process.env.ASI_ONE_API_KEY?.length);
+    console.log('🔑 [ROUTE] API Key starts with sk_:', process.env.ASI_ONE_API_KEY?.startsWith('sk_'));
+    console.log('🔑 [ROUTE] API Key first 20 chars:', process.env.ASI_ONE_API_KEY?.substring(0, 20));
+    console.log('🔑 [ROUTE] API Key last 20 chars:', process.env.ASI_ONE_API_KEY?.substring(-20));
     
     const ideas = await ceoAgent.generateIdeas(count);
     
@@ -464,7 +464,7 @@ router.post('/bolt-prompt/:ideaId', async (req, res) => {
 
 // Test API key endpoint
 router.get('/test-api-key', (req, res) => {
-  const apiKey = process.env.CLAUDE_API_KEY;
+  const apiKey = process.env.ASI_ONE_API_KEY;
   
   // Log the API key details
   console.log('🔑 [TEST] API Key exists:', !!apiKey);
@@ -497,18 +497,18 @@ router.get('/test-api-key', (req, res) => {
   });
 });
 
-// Test Claude API directly
-router.get('/test-claude-api', async (req, res) => {
+// Test ASI:One API directly
+router.get('/test-asi-one-api', async (req, res) => {
   const axios = require('axios');
-  const apiKey = process.env.CLAUDE_API_KEY;
+  const apiKey = process.env.ASI_ONE_API_KEY;
   
   try {
-    console.log('🔑 [CLAUDE_TEST] Testing Claude API directly...');
-    console.log('🔑 [CLAUDE_TEST] API Key length:', apiKey?.length);
-    console.log('🔑 [CLAUDE_TEST] API Key starts with sk-ant:', apiKey?.startsWith('sk-ant'));
+    console.log('🔑 [ASI_ONE_TEST] Testing ASI:One API directly...');
+    console.log('🔑 [ASI_ONE_TEST] API Key length:', apiKey?.length);
+    console.log('🔑 [ASI_ONE_TEST] API Key starts with sk_:', apiKey?.startsWith('sk_'));
     
-    const response = await axios.post('https://api.anthropic.com/v1/messages', {
-      model: 'claude-3-haiku-20240307',
+    const response = await axios.post('https://api.asi1.ai/v1/chat/completions', {
+      model: 'asi1-mini',
       max_tokens: 100,
       messages: [
         {
@@ -518,17 +518,16 @@ router.get('/test-claude-api', async (req, res) => {
       ]
     }, {
       headers: {
-        'x-api-key': apiKey,
-        'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
       }
     });
     
-    console.log('🔑 [CLAUDE_TEST] Claude API response:', response.data);
+    console.log('🔑 [ASI_ONE_TEST] ASI:One API response:', response.data);
     res.json({ success: true, response: response.data });
     
   } catch (error) {
-    console.error('🔑 [CLAUDE_TEST] Claude API error:', error.response?.data || error.message);
+    console.error('🔑 [ASI_ONE_TEST] ASI:One API error:', error.response?.data || error.message);
     res.json({ 
       success: false, 
       error: error.response?.data || error.message,

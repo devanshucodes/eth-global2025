@@ -1,21 +1,22 @@
 const axios = require('axios');
 
-class ClaudeAgent {
+class ASIOneAgent {
   constructor(name, role, apiKey) {
     this.name = name;
     this.role = role;
     this.apiKey = apiKey;
-    this.model = process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
+    this.model = 'asi1-mini';
+    this.baseURL = 'https://api.asi1.ai/v1';
   }
 
   async generateResponse(prompt, maxTokens = 1000) {
     try {
       console.log(`🔑 [${this.name}] API Key length: ${this.apiKey?.length || 0}`);
-      console.log(`🔑 [${this.name}] API Key starts with sk-ant: ${this.apiKey?.startsWith('sk-ant') || false}`);
+      console.log(`🔑 [${this.name}] API Key starts with sk_: ${this.apiKey?.startsWith('sk_') || false}`);
       console.log(`🔑 [${this.name}] API Key first 20 chars: ${this.apiKey?.substring(0, 20) || 'undefined'}`);
       console.log(`🔑 [${this.name}] Model: ${this.model}`);
       
-      const response = await axios.post('https://api.anthropic.com/v1/messages', {
+      const response = await axios.post(`${this.baseURL}/chat/completions`, {
         model: this.model,
         max_tokens: maxTokens,
         messages: [
@@ -26,16 +27,15 @@ class ClaudeAgent {
         ]
       }, {
         headers: {
-          'x-api-key': this.apiKey,
-          'Content-Type': 'application/json',
-          'anthropic-version': '2023-06-01'
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
         }
       });
 
-      return response.data.content[0].text;
+      return response.data.choices[0].message.content;
     } catch (error) {
       console.error(`Error in ${this.name}:`, error.response?.data || error.message);
-      throw new Error(`Claude API error: ${error.message}`);
+      throw new Error(`ASI:One API error: ${error.message}`);
     }
   }
 
@@ -45,6 +45,4 @@ class ClaudeAgent {
   }
 }
 
-module.exports = ClaudeAgent;
-
-
+module.exports = ASIOneAgent;

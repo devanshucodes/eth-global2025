@@ -1,11 +1,11 @@
-const ClaudeAgent = require('./ClaudeAgent');
+const ASIOneAgent = require('./ASIOneAgent');
 const web3Service = require('../services/web3Service');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-class FinanceAgent extends ClaudeAgent {
-  constructor() {
-    super('Finance Agent');
+class FinanceAgent extends ASIOneAgent {
+  constructor(apiKey) {
+    super('Finance Agent', 'Financial analysis and revenue distribution', apiKey);
     this.db = new sqlite3.Database(process.env.DB_PATH || './database/ai_company.db');
   }
 
@@ -75,7 +75,7 @@ class FinanceAgent extends ClaudeAgent {
   }
 
   /**
-   * Analyze revenue potential for a project using Claude
+   * Analyze revenue potential for a project using ASI:One
    */
   async analyzeRevenueProjection(ideaData, productData = null) {
     try {

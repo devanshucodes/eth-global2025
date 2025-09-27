@@ -92,6 +92,6 @@ if (require('fs').existsSync(buildPath)) {
 app.listen(PORT, () => {
   console.log(`AI Company server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔑 [SERVER] CLAUDE_API_KEY exists: ${!!process.env.CLAUDE_API_KEY}`);
-  console.log(`🔑 [SERVER] CLAUDE_API_KEY length: ${process.env.CLAUDE_API_KEY?.length || 0}`);
+  console.log(`🔑 [SERVER] ASI_ONE_API_KEY exists: ${!!process.env.ASI_ONE_API_KEY}`);
+  console.log(`🔑 [SERVER] ASI_ONE_API_KEY length: ${process.env.ASI_ONE_API_KEY?.length || 0}`);
 });

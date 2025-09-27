@@ -1,6 +1,6 @@
-const ClaudeAgent = require('./ClaudeAgent');
+const ASIOneAgent = require('./ASIOneAgent');
 
-class CMOAgent extends ClaudeAgent {
+class CMOAgent extends ASIOneAgent {
   constructor(apiKey) {
     super('CMO Agent', 'Marketing strategy and brand development', apiKey);
   }
@@ -79,9 +79,9 @@ Format your response as JSON:
 
     let response;
     try {
-      console.log('📢 [CMO AGENT] Calling Claude API...');
+      console.log('📢 [CMO AGENT] Calling ASI:One API...');
       response = await this.generateResponse(prompt, 3000);
-      console.log('📢 [CMO AGENT] Raw Claude response length:', response?.length);
+      console.log('📢 [CMO AGENT] Raw ASI:One response length:', response?.length);
       
       // Clean the response to handle JSON parsing issues
       let cleanedResponse = response

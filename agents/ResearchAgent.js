@@ -1,6 +1,6 @@
-const ClaudeAgent = require('./ClaudeAgent');
+const ASIOneAgent = require('./ASIOneAgent');
 
-class ResearchAgent extends ClaudeAgent {
+class ResearchAgent extends ASIOneAgent {
   constructor(apiKey) {
     super('Research Agent', 'Market research and competitive analysis', apiKey);
   }
@@ -52,10 +52,10 @@ Format your response as JSON:
 
     let response;
     try {
-      console.log('🔍 [RESEARCH AGENT] Calling Claude API...');
+      console.log('🔍 [RESEARCH AGENT] Calling ASI:One API...');
       response = await this.generateResponse(prompt, 2500);
-      console.log('🔍 [RESEARCH AGENT] Raw Claude response length:', response?.length);
-      console.log('🔍 [RESEARCH AGENT] Raw Claude response preview:', response?.substring(0, 200) + '...');
+      console.log('🔍 [RESEARCH AGENT] Raw ASI:One response length:', response?.length);
+      console.log('🔍 [RESEARCH AGENT] Raw ASI:One response preview:', response?.substring(0, 200) + '...');
       
       // Clean the response to handle JSON parsing issues
       let cleanedResponse = response

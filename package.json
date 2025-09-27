@@ -1,7 +1,7 @@
 {
   "name": "ai-company",
   "version": "1.0.0",
-  "description": "AI Company with Claude-powered agents",
+  "description": "AI Company with ASI:One-powered agents",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -24,7 +24,7 @@
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["ai", "agents", "claude", "automation"],
+  "keywords": ["ai", "agents", "asi-one", "automation"],
   "author": "Team Zero",
   "license": "MIT"
 }

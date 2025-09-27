@@ -6,7 +6,7 @@ A revolutionary AI-only company with hierarchical AI agents and token holder gov
 
 ### Prerequisites
 - Node.js (v14 or higher)
-- Claude API key from Anthropic
+- ASI:One API key from ASI Alliance
 
 ### Installation
 
@@ -20,7 +20,7 @@ cd client && npm install && cd ..
 2. **Configure environment:**
 ```bash
 cp env.example .env
-# Edit .env and add your Claude API key
+# Edit .env and add your ASI:One API key
 ```
 
 3. **Initialize database:**
@@ -112,7 +112,7 @@ CEO Agent (Idea Generation & Product Validation)
 ## 🛠️ Features
 
 ### ✅ Implemented
-- **CEO Agent**: Generates business ideas using Claude API
+- **CEO Agent**: Generates business ideas using ASI:One API
 - **Research Agent**: Market research and competitive analysis
 - **Product Agent**: Product concept development
 - **Finance Agent**: Revenue analysis and automated distribution
@@ -134,7 +134,7 @@ CEO Agent (Idea Generation & Product Validation)
 ```
 team-zero/
 ├── agents/                 # AI Agent implementations
-│   ├── ClaudeAgent.js     # Base agent class
+│   ├── ASIOneAgent.js     # Base agent class
 │   ├── CEOAgent.js        # CEO agent
 │   ├── ResearchAgent.js   # Research agent
 │   └── ProductAgent.js    # Product agent
@@ -225,7 +225,7 @@ team-zero/
 
 ```bash
 # Required
-CLAUDE_API_KEY=your_claude_api_key_here
+ASI_ONE_API_KEY=your_asi_one_api_key_here
 
 # Web3 Configuration (Required for Revenue Distribution)
 PRIVATE_KEY=your_avalanche_wallet_private_key_here
@@ -243,7 +243,7 @@ N8N_WEBHOOK_URL=your_n8n_webhook_url_here
 
 ### Common Issues
 
-1. **Claude API Error**: Make sure your API key is correct and has credits
+1. **ASI:One API Error**: Make sure your API key is correct and has credits
 2. **Database Error**: Run `node database/setup.js` to initialize
 3. **Port Conflicts**: Change PORT in .env file
 4. **CORS Issues**: Make sure backend is running on port 5000
@@ -287,9 +287,9 @@ NODE_ENV=development npm start
 
 ### Recent Customizations
 - **Streamlined AI Models**: Removed all AI providers except Anthropic for focused development experience
-- **Claude 3.7 Sonnet Integration**: Updated to use the latest Claude 3.7 Sonnet (claude-3-7-sonnet-20250219) with hybrid reasoning capabilities
+- **ASI:One Integration**: Updated to use ASI:One Mini (asi1-mini) with Web3-native agentic AI capabilities
 - **Simplified Provider UI**: Updated settings interface to only show Anthropic with clear model description
-- **Enhanced Performance**: Disabled dynamic model loading to ensure consistent Claude 3.7 Sonnet usage
+- **Enhanced Performance**: Disabled dynamic model loading to ensure consistent ASI:One Mini usage
 - **Cleaned UI Interface**: Removed Import Chat, Import Folder, and Clone a repo buttons for streamlined developer agent experience
 - **Updated Welcome Text**: Changed main heading to "Developer Agent" and description to focus on development assistance
 - **Custom Branding**: Replaced Bolt.diy logo with "team zero" in stylized gradient design
@@ -300,23 +300,23 @@ NODE_ENV=development npm start
 
 ### Modified Files
 - `bolt.diy-main/app/lib/modules/llm/registry.ts` - Removed all providers except Anthropic
-- `bolt.diy-main/app/lib/modules/llm/providers/anthropic.ts` - Updated to Claude 3.7 Sonnet only
+- `bolt.diy-main/app/lib/modules/llm/providers/anthropic.ts` - Updated to ASI:One Mini only
 - `bolt.diy-main/app/components/@settings/tabs/providers/cloud/CloudProvidersTab.tsx` - Simplified UI
 - `bolt.diy-main/app/components/chat/BaseChat.tsx` - Updated welcome text and removed import buttons
 - `bolt.diy-main/app/components/header/Header.tsx` - Replaced logo with "team zero" branding
 
 ### Developer Agent Integration
-When the Head of Engineering creates a development prompt, the Developer Agent becomes clickable and opens Bolt.diy with the generated prompt, now powered exclusively by Claude 3.7 Sonnet for consistent, high-quality code generation.
+When the Head of Engineering creates a development prompt, the Developer Agent becomes clickable and opens Bolt.diy with the generated prompt, now powered exclusively by ASI:One Mini for consistent, high-quality code generation.
 
 ## 📝 Development Notes
 
-- All agent communication uses Claude API
+- All agent communication uses ASI:One API
 - Database is SQLite for simplicity
 - Frontend is React with minimalist, professional styling
 - API uses Express.js with CORS enabled
 - Token holder system is basic voting mechanism
 - UI follows modern design principles with terminal-inspired agent activity section
-- Bolt.diy integration uses Claude 3.7 Sonnet for website development
+- Bolt.diy integration uses ASI:One Mini for website development
 
 ## 🤝 Contributing
 

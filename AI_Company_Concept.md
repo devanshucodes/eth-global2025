@@ -149,7 +149,7 @@ This concept represents a paradigm shift in organizational structure, combining 
 
 ### ✅ Completed Features
 - **Project Structure**: Complete Node.js/Express backend with React frontend
-- **CEO Agent**: Generates $1M business ideas using Claude API
+- **CEO Agent**: Generates $1M business ideas using ASI:One API
 - **Research Agent**: Conducts market research and competitive analysis
 - **Product Agent**: Develops detailed product concepts
 - **Token Holder Dashboard**: Web interface for voting and approvals
@@ -169,7 +169,7 @@ This concept represents a paradigm shift in organizational structure, combining 
 - **Agent Coordination**: Better inter-agent communication
 
 ### 🎯 Next Steps
-1. Set up Claude API key and test the system
+1. Set up ASI:One API key and test the system
 2. Add coding agents for website development
 3. Integrate with Bolt for website building
 4. Add marketing agent with n8n integration
