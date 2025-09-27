@@ -37,6 +37,7 @@ const databaseRoutes = require('./routes/database');
 const ceoAgentRoutes = require('./routes/ceo-agents');
 const companyRoutes = require('./routes/companies');
 const portfolioRoutes = require('./routes/portfolio');
+const companyWorkflowRoutes = require('./routes/company-workflow');
 
 // Import Web3 service to initialize
 const web3Service = require('./services/web3Service');
@@ -52,6 +53,7 @@ app.use('/api/database', databaseRoutes);
 app.use('/api/ceo-agents', ceoAgentRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/portfolio', portfolioRoutes);
+app.use('/api/company-workflow', companyWorkflowRoutes);
 
 // Serve database dashboard
 app.get('/database-dashboard', (req, res) => {

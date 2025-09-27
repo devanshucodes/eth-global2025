@@ -1,10 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const sqlite3 = require('sqlite3').verbose();
+const ResearchAgent = require('../agents/ResearchAgent');
+const ProductAgent = require('../agents/ProductAgent');
 
 // Database connection
 const dbPath = process.env.DB_PATH || './database/ai_company.db';
 const db = new sqlite3.Database(dbPath);
+
+// Initialize agents
+const researchAgent = new ResearchAgent(process.env.CLAUDE_API_KEY);
+const productAgent = new ProductAgent(process.env.CLAUDE_API_KEY);
 
 // Get all CEO agents
 router.get('/', (req, res) => {
@@ -249,6 +255,26 @@ router.post('/:id/launch', (req, res) => {
           return res.status(500).json({ success: false, error: err.message });
         }
         
+        // Initialize company workflow state
+        const companyId = this.lastID;
+        db.run(
+          'INSERT INTO company_workflow_state (company_id, current_step, status) VALUES (?, ?, ?)',
+          [companyId, 'research', 'active'],
+          (err) => {
+            if (err) {
+              console.error('Create workflow state error:', err);
+              // Continue anyway - workflow state is not critical for launch
+            } else {
+              console.log(`✅ [WORKFLOW] Initialized workflow state for company ${companyId}`);
+              
+              // Auto-start research workflow in background
+              setTimeout(() => {
+                startCompanyWorkflow(companyId, agent);
+              }, 2000);
+            }
+          }
+        );
+        
         // Delete the agent from ceo_agents table (move to companies only)
         db.run(
           'DELETE FROM ceo_agents WHERE id = ?',
@@ -263,7 +289,7 @@ router.post('/:id/launch', (req, res) => {
               success: true,
               message: 'Agent launched successfully!',
               company: {
-                id: this.lastID,
+                id: companyId,
                 name: companyName,
                 ceo_agent_id: agentId,
                 status: 'running',
@@ -276,5 +302,74 @@ router.post('/:id/launch', (req, res) => {
     });
   });
 });
+
+// Auto-start company workflow function
+async function startCompanyWorkflow(companyId, agent) {
+  console.log(`🚀 [WORKFLOW] Starting auto-workflow for company ${companyId}`);
+  
+  try {
+    // Create idea object from agent data
+    const idea = {
+      id: companyId,
+      title: agent.company_idea,
+      description: agent.description,
+      potential_revenue: "$1M+",
+      status: 'approved'
+    };
+    
+    console.log(`🔍 [WORKFLOW] Starting research for: ${idea.title}`);
+    
+    // Step 1: Research Agent
+    const researchData = await researchAgent.researchIdea(idea);
+    console.log(`✅ [WORKFLOW] Research completed for company ${companyId}`);
+    
+    // Update workflow state with research data
+    db.run(
+      'UPDATE company_workflow_state SET research_data = ?, current_step = ?, updated_at = CURRENT_TIMESTAMP WHERE company_id = ?',
+      [JSON.stringify(researchData), 'product', companyId],
+      (err) => {
+        if (err) {
+          console.error('Error updating workflow state with research:', err);
+        } else {
+          console.log(`📊 [WORKFLOW] Updated workflow state for company ${companyId} - research completed`);
+        }
+      }
+    );
+    
+    // Step 2: Product Agent
+    console.log(`🚀 [WORKFLOW] Starting product development for company ${companyId}`);
+    const productData = await productAgent.developProduct(idea, researchData);
+    console.log(`✅ [WORKFLOW] Product development completed for company ${companyId}`);
+    
+    // Update workflow state with product data and move to voting
+    db.run(
+      'UPDATE company_workflow_state SET product_data = ?, current_step = ?, updated_at = CURRENT_TIMESTAMP WHERE company_id = ?',
+      [JSON.stringify(productData), 'voting', companyId],
+      (err) => {
+        if (err) {
+          console.error('Error updating workflow state with product:', err);
+        } else {
+          console.log(`📊 [WORKFLOW] Updated workflow state for company ${companyId} - product completed, waiting for approval`);
+        }
+      }
+    );
+    
+    console.log(`🎯 [WORKFLOW] Company ${companyId} workflow completed - PDR ready for voting`);
+    
+  } catch (error) {
+    console.error(`❌ [WORKFLOW] Error in auto-workflow for company ${companyId}:`, error);
+    
+    // Update workflow state to error
+    db.run(
+      'UPDATE company_workflow_state SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE company_id = ?',
+      ['error', companyId],
+      (err) => {
+        if (err) {
+          console.error('Error updating workflow state to error:', err);
+        }
+      }
+    );
+  }
+}
 
 module.exports = router;

@@ -274,6 +274,168 @@ function App() {
     fetchPortfolio();
   }, [tokenHolderId]);
 
+  // Load company workflow state when company dashboard is opened
+  useEffect(() => {
+    if (currentPage === 'company-dashboard' && selectedCompany) {
+      loadCompanyWorkflow(selectedCompany.id);
+    }
+  }, [currentPage, selectedCompany]);
+
+  // Load company workflow state from database
+  const loadCompanyWorkflow = async (companyId) => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+      const response = await fetch(`${apiUrl}/api/company-workflow/${companyId}`);
+      const data = await response.json();
+      
+      if (data.success && data.workflow) {
+        const workflow = data.workflow;
+        
+        // Set up company idea
+        const companyIdea = {
+          id: companyId,
+          title: selectedCompany.company_idea,
+          description: selectedCompany.description,
+          potential_revenue: "$1M+",
+          status: 'approved'
+        };
+        setCurrentIdea(companyIdea);
+        
+        // Set up workflow state based on current step
+        let activity = [{
+          id: 1,
+          agent: 'CEO Agent',
+          activity: 'Company launched and ready to work',
+          timestamp: new Date().toISOString(),
+          data: companyIdea
+        }];
+        
+        if (workflow.current_step === 'research' || workflow.current_step === 'product') {
+          activity.push({
+            id: 2,
+            agent: 'Research Agent',
+            activity: 'Conducting market research...',
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+        if (workflow.research_data) {
+          setResearch(workflow.research_data);
+          activity.push({
+            id: 3,
+            agent: 'Research Agent',
+            activity: 'Research completed successfully!',
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+        if (workflow.current_step === 'product' || workflow.current_step === 'voting') {
+          activity.push({
+            id: 4,
+            agent: 'Product Agent',
+            activity: 'Developing product concept...',
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+        if (workflow.product_data) {
+          setProduct(workflow.product_data);
+          activity.push({
+            id: 5,
+            agent: 'Product Agent',
+            activity: 'Product Development Report (PDR) completed!',
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+        if (workflow.current_step === 'voting') {
+          activity.push({
+            id: 6,
+            agent: 'System',
+            activity: 'PDR ready for token holder approval',
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+        if (workflow.current_step === 'approved') {
+          activity.push({
+            id: 7,
+            agent: 'Token Holders',
+            activity: 'PDR approved! Continuing with CMO and CTO agents...',
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+        if (workflow.current_step === 'rejected') {
+          activity.push({
+            id: 8,
+            agent: 'Token Holders',
+            activity: 'PDR rejected. Workflow paused.',
+            timestamp: new Date().toISOString()
+          });
+        }
+        
+        setAgentActivity(activity);
+        
+        // Auto-continue workflow if approved
+        if (workflow.current_step === 'approved' && !marketingStrategy && !technicalStrategy) {
+          setTimeout(() => {
+            triggerCMOAndCTO();
+          }, 1000);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading company workflow:', error);
+    }
+  };
+
+  // Vote on company workflow (PDR approval)
+  const voteOnCompanyWorkflow = async (vote, feedback = '') => {
+    if (!selectedCompany) return;
+    
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+      const response = await fetch(`${apiUrl}/api/company-workflow/${selectedCompany.id}/vote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          vote, 
+          feedback, 
+          voterId: tokenHolderId || 'anonymous' 
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setAgentActivity(prev => [...prev, { 
+          agent: 'Token Holder', 
+          action: `PDR ${vote}d`, 
+          time: new Date().toLocaleTimeString() 
+        }]);
+        
+        // Auto-continue workflow if approved
+        if (vote === 'approve') {
+          setTimeout(() => {
+            setAgentActivity(prev => [...prev, { 
+              agent: 'System', 
+              action: 'PDR approved! Starting CMO and CTO agents...', 
+              time: new Date().toLocaleTimeString() 
+            }]);
+            triggerCMOAndCTO();
+          }, 1000);
+        }
+        
+        // Reload workflow state
+        loadCompanyWorkflow(selectedCompany.id);
+      }
+    } catch (error) {
+      console.error('Error voting on workflow:', error);
+    }
+  };
+
   // Helper function to safely format target market segments
   const formatSegment = (val) => {
     if (!val) return 'N/A';
@@ -310,7 +472,7 @@ function App() {
     setAgentActivity(prev => [...prev, { agent: 'CEO Agent', action: 'Generating new business idea...', time: new Date().toLocaleTimeString() }]);
     
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || '';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
       const response = await fetch(`${apiUrl}/api/agents/generate-ideas`, {
         method: 'POST',
         headers: {
@@ -341,7 +503,7 @@ function App() {
     setAgentActivity(prev => [...prev, { agent: 'Research Agent', action: 'Conducting market research...', time: new Date().toLocaleTimeString() }]);
     
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || '';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
       const response = await fetch(`${apiUrl}/api/agents/research`, {
         method: 'POST',
         headers: {
@@ -389,7 +551,7 @@ function App() {
     setAgentActivity(prev => [...prev, { agent: 'Product Agent', action: 'Developing product concept...', time: new Date().toLocaleTimeString() }]);
     
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || '';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
       const response = await fetch(`${apiUrl}/api/agents/develop-product`, {
         method: 'POST',
         headers: {
@@ -448,7 +610,7 @@ function App() {
         time: new Date().toLocaleTimeString() 
       }]);
       
-      const apiUrl = process.env.REACT_APP_API_URL || '';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
       const cmoResponse = await fetch(`${apiUrl}/api/agents/marketing-strategy`, {
         method: 'POST',
         headers: {
@@ -573,7 +735,7 @@ function App() {
     console.log('🔧 [FRONTEND] Starting Bolt prompt creation for product:', productData.product_name);
     
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || '';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
       const response = await fetch(`${apiUrl}/api/agents/bolt-prompt`, {
         method: 'POST',
         headers: {
@@ -643,7 +805,7 @@ function App() {
         time: new Date().toLocaleTimeString() 
       }]);
 
-      const apiUrl = process.env.REACT_APP_API_URL || '';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
       const response = await fetch(`${apiUrl}/api/finance/complete-project`, {
         method: 'POST',
         headers: {
@@ -1048,6 +1210,7 @@ function App() {
               disabled={createFormLoading}
               className="timeline-select"
             >
+              <option value={1}>⚡ Instant Demo - 1 minute (Ultra-fast demonstration)</option>
               <option value={5}>⚡ Quick Demo - 5 minutes (Fast demonstration)</option>
               <option value={10}>🚀 Standard Demo - 10 minutes (Recommended)</option>
               <option value={15}>🔬 Extended Demo - 15 minutes (Comprehensive showcase)</option>
@@ -1391,42 +1554,40 @@ function App() {
           </button>
           <div className="company-title">
             <h2>{selectedCompany.name}</h2>
-            <p>{selectedCompany.companyIdea}</p>
+            <p>{selectedCompany.company_idea}</p>
             <div className="company-meta">
-              <span>{selectedCompany.tokenSymbol}</span>
-              <span>${selectedCompany.pricePerToken}/token</span>
-              <span>{selectedCompany.tokensAvailable} available</span>
+              <span>{selectedCompany.token_symbol}</span>
+              <span>${selectedCompany.price_per_token}/token</span>
+              <span>{selectedCompany.total_tokens} total tokens</span>
         </div>
           </div>
         </div>
 
         {activeTab === 'dashboard' && (
           <div className="dashboard-content">
-            {/* This is where the existing dashboard content will go */}
-        <div className="controls">
-          <button 
-            onClick={generateIdeas} 
-            disabled={loading}
-            className="generate-btn"
-          >
-            {loading ? `Generating... (${currentAgent})` : 'Generate New Idea ($1M Potential)'}
-          </button>
-          <button 
-            onClick={() => {
-              setCurrentIdea(null);
-              setResearch(null);
-              setProduct(null);
-              setMarketingStrategy(null);
-              setTechnicalStrategy(null);
-              setBoltPrompt(null);
-              setAgentActivity([]);
-              setCurrentAgent(null);
-            }}
-            className="clear-btn"
-          >
-            🗑️ Clear All & Start Fresh
-          </button>
-        </div>
+            {/* Company is already working on its idea */}
+            <div className="company-status">
+              <h3>🚀 {selectedCompany.ceo_agent_name} is actively working on: {selectedCompany.company_idea}</h3>
+              <p>This AI company is automatically progressing through the development workflow.</p>
+            </div>
+            
+            <div className="controls">
+              <button 
+                onClick={() => {
+                  setCurrentIdea(null);
+                  setResearch(null);
+                  setProduct(null);
+                  setMarketingStrategy(null);
+                  setTechnicalStrategy(null);
+                  setBoltPrompt(null);
+                  setAgentActivity([]);
+                  setCurrentAgent(null);
+                }}
+                className="clear-btn"
+              >
+                🗑️ Reset Workflow
+              </button>
+            </div>
 
         {/* Agent Flow Visualization */}
         <AgentFlow 
@@ -1505,23 +1666,61 @@ function App() {
                     {product && !marketingStrategy && (
                       <div className="final-approval-section">
                         <div className="ceo-approval-header">
-                          <h4>🎯 CEO Agent Evaluation Complete!</h4>
-                          <p>The CEO Agent has reviewed the product concept and approved it for final token holder vote.</p>
+                          <h4>📋 Product Development Report (PDR) Ready!</h4>
+                          <p>The Research and Product Agents have completed their work. Review the PDR below and vote to continue the workflow.</p>
                         </div>
+                        
+                        {/* PDR Display */}
+                        <div className="pdr-display">
+                          <h5>📊 Product Development Report</h5>
+                          <div className="pdr-content">
+                            <div className="pdr-section">
+                              <h6>Product Name:</h6>
+                              <p>{product.product_name}</p>
+                            </div>
+                            <div className="pdr-section">
+                              <h6>Description:</h6>
+                              <p>{product.product_description}</p>
+                            </div>
+                            <div className="pdr-section">
+                              <h6>Core Features:</h6>
+                              <ul>
+                                {product.core_features && product.core_features.map((feature, index) => (
+                                  <li key={index}>{feature}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div className="pdr-section">
+                              <h6>Target Market:</h6>
+                              <p>Primary: {product.target_market?.primary || 'N/A'}</p>
+                              <p>Secondary: {product.target_market?.secondary || 'N/A'}</p>
+                            </div>
+                            <div className="pdr-section">
+                              <h6>Value Proposition:</h6>
+                              <p>{product.value_proposition}</p>
+                            </div>
+                            <div className="pdr-section">
+                              <h6>Revenue Model:</h6>
+                              <p>{product.revenue_model}</p>
+                            </div>
+                          </div>
+                        </div>
+                        
                         <div className="final-voting-section">
-                          <h5>Final Token Holder Decision Required:</h5>
+                          <h5>🗳️ Token Holder Decision Required:</h5>
+                          <p>Approve this PDR to continue with CMO and CTO agents, or reject to pause the workflow.</p>
                           <div className="product-actions">
                             <button 
-                              onClick={() => voteOnItem('product', 'approve')}
+                              onClick={() => voteOnCompanyWorkflow('approve')}
                               className="final-approve-btn"
                             >
-                              🚀 APPROVE FINAL PRODUCT
+                              ✅ APPROVE PDR
                             </button>
                             <button 
-                              onClick={() => voteOnItem('product', 'reject')}
+                              onClick={() => voteOnCompanyWorkflow('reject')}
                               className="final-reject-btn"
                             >
-                              ❌ REJECT PRODUCT
+                              ❌ REJECT PDR
                             </button>
                           </div>
                         </div>

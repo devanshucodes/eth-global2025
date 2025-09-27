@@ -1039,6 +1039,29 @@
   box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
 }
 
+/* Company Dashboard Styles */
+.company-status {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border: 1px solid #0ea5e9;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.company-status h3 {
+  color: #0c4a6e;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.company-status p {
+  color: #0369a1;
+  font-size: 1rem;
+  margin: 0;
+}
+
 /* Countdown Timer Styles */
 .countdown-container {
   display: flex;
@@ -1378,6 +1401,62 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+}
+
+/* PDR Display Styles */
+.pdr-display {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.pdr-display h5 {
+  color: #1a202c;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 15px 0;
+  border-bottom: 2px solid #3b82f6;
+  padding-bottom: 8px;
+}
+
+.pdr-content {
+  display: grid;
+  gap: 15px;
+}
+
+.pdr-section {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.pdr-section h6 {
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pdr-section p {
+  color: #4b5563;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.pdr-section ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+}
+
+.pdr-section li {
+  color: #4b5563;
+  margin: 4px 0;
+  line-height: 1.4;
 }
 
 .company-header-section {
