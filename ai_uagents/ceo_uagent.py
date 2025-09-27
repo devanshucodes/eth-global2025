@@ -6,7 +6,7 @@ Generates business ideas and evaluates product concepts
 import json
 from typing import List, Dict, Any
 from uagents import Context, Model
-from .base_uagent import BaseUAgent
+from base_uagent import BaseUAgent
 
 class GenerateIdeas(Model):
     """Model for generating business ideas"""
@@ -163,6 +163,113 @@ Provide your assessment in JSON format:
                     go_decision=False
                 )
                 await ctx.send(sender, error_evaluation)
+        
+        # REST endpoints for Node.js server integration
+        @self.agent.on_rest_post("/generate-ideas", GenerateIdeas, IdeasResponse)
+        async def handle_generate_ideas_rest(ctx: Context, req: GenerateIdeas) -> IdeasResponse:
+            """REST endpoint for generating business ideas"""
+            try:
+                print(f"🧠 [{self.name}] REST: Generating {req.count} business ideas...")
+                
+                prompt = f"""You are a visionary CEO of an AI company. Generate {req.count} innovative business ideas that could potentially generate $1 million in revenue.
+
+For each idea, provide:
+1. A catchy title
+2. A brief description (2-3 sentences)
+3. Potential revenue model
+4. Why it could be successful
+
+Format your response as JSON with this structure:
+{{
+  "ideas": [
+    {{
+      "title": "Idea Title",
+      "description": "Brief description",
+      "revenue_model": "How it makes money",
+      "success_factors": "Why it could work"
+    }}
+  ]
+}}"""
+
+                response = await self.call_asi_one(prompt, 2000)
+                
+                # Parse JSON response
+                try:
+                    ideas_data = json.loads(response)
+                except json.JSONDecodeError:
+                    # Try to extract JSON from response
+                    import re
+                    json_match = re.search(r'\{[\s\S]*\}', response)
+                    if json_match:
+                        ideas_data = json.loads(json_match.group())
+                    else:
+                        raise ValueError("Could not parse JSON from response")
+                
+                ideas = [BusinessIdea(**idea) for idea in ideas_data.get('ideas', [])]
+                
+                self.log_activity('REST: Generated business ideas', {
+                    'count': len(ideas)
+                })
+                
+                return IdeasResponse(ideas=ideas)
+                
+            except Exception as e:
+                print(f"❌ [{self.name}] REST: Error generating ideas: {str(e)}")
+                return IdeasResponse(ideas=[])
+        
+        @self.agent.on_rest_post("/evaluate-product", EvaluateProduct, ProductEvaluation)
+        async def handle_evaluate_product_rest(ctx: Context, req: EvaluateProduct) -> ProductEvaluation:
+            """REST endpoint for product evaluation"""
+            try:
+                print(f"🧠 [{self.name}] REST: Evaluating product: {req.product_name}")
+                
+                prompt = f"""As a CEO, evaluate this product concept for market viability:
+
+Product: {req.product_name}
+Description: {req.product_description}
+Features: {', '.join(req.features)}
+Target Market: {json.dumps(req.target_market)}
+
+Provide your assessment in JSON format:
+{{
+  "viability_score": 1-10,
+  "market_potential": "High/Medium/Low",
+  "recommendations": "What to improve",
+  "go_decision": true/false
+}}"""
+
+                response = await self.call_asi_one(prompt, 1000)
+                
+                # Parse JSON response
+                try:
+                    evaluation_data = json.loads(response)
+                except json.JSONDecodeError:
+                    # Try to extract JSON from response
+                    import re
+                    json_match = re.search(r'\{[\s\S]*\}', response)
+                    if json_match:
+                        evaluation_data = json.loads(json_match.group())
+                    else:
+                        raise ValueError("Could not parse JSON from response")
+                
+                evaluation = ProductEvaluation(**evaluation_data)
+                
+                self.log_activity('REST: Evaluated product', {
+                    'product_name': req.product_name,
+                    'viability_score': evaluation.viability_score,
+                    'go_decision': evaluation.go_decision
+                })
+                
+                return evaluation
+                
+            except Exception as e:
+                print(f"❌ [{self.name}] REST: Error evaluating product: {str(e)}")
+                return ProductEvaluation(
+                    viability_score=0,
+                    market_potential="Low",
+                    recommendations="Evaluation failed",
+                    go_decision=False
+                )
 
 # Create the agent instance
 ceo_agent = CEOuAgent()
@@ -170,5 +277,5 @@ ceo_agent = CEOuAgent()
 if __name__ == "__main__":
     print(f"🚀 Starting CEO uAgent on port {ceo_agent.port}")
     print(f"📍 Agent address: {ceo_agent.get_agent_address()}")
-    print(f"🌐 Agentverse registration: {'Enabled' if ceo_agent.agent.publish_agent_details else 'Disabled'}")
+    print(f"🌐 Agentverse registration: Enabled")
     ceo_agent.agent.run()

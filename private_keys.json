@@ -2,5 +2,33 @@
     "CEO Agent": {
         "identity_key": "eeb3036488a27bc3b57b3cbc307da2a2c1ba2d1bb12f33b5ed3fd687dc9f93e5",
         "wallet_key": "X/DgGPl2X4BSCxXaDQlY8l9fJvaa6nqvYaIBsqAX3GY="
+    },
+    "Research Agent": {
+        "identity_key": "a733ea3737500a05c75f774bf9a072bb35a7e3cb9b704dc81191fc3d5d4ec6fe",
+        "wallet_key": "HfyQbJ6C45/7JKw4KqHaxlExlFYqikIcX+u7hhHjn5c="
+    },
+    "Product Agent": {
+        "identity_key": "40c4f3f532913d89d323aacd82a93c8817fa4186332b29bf1e7947e08ec081f4",
+        "wallet_key": "AmIKaoqIj6omC8i4CzoXatO96/3vGp5ZSSGaZSjjCuc="
+    },
+    "CMO Agent": {
+        "identity_key": "9af80a934b1b2c058d41aa801a8d2b540254f86cd2407b5aeb3c9d572215f49c",
+        "wallet_key": "Vbl68q1qGAy3psGzjDBMm32fSRzcyc+6tp/mjxiA8PE="
+    },
+    "CTO Agent": {
+        "identity_key": "f64f900ccecff3c53793f7d49966cc459f6040248295f20f014f5e3747dd935a",
+        "wallet_key": "0tfb36riwOR1h9ksQcPlev9YOdkvQtFncu0CchAhzZk="
+    },
+    "Head of Engineering Agent": {
+        "identity_key": "6da1beac08054170dc912ecef380a29f47e633339817118b42dc794c1507824f",
+        "wallet_key": "/9MmzNW8Rs9KXm743bIZdbHn9FsZa5jMxAQB5vxfe+0="
+    },
+    "Finance Agent": {
+        "identity_key": "43455ba55554b232c4521ba39ee1e50015d200605d5265568db4ed135d28ed5c",
+        "wallet_key": "xDLlidoSO0b2i6B1LI+pGe22ImI+wd6hILdJNI5VHDQ="
+    },
+    "Workflow Orchestrator": {
+        "identity_key": "364eb77668cc132d0a979e648259d29c536006f8df11abff706b7b6d08553a93",
+        "wallet_key": "I/N4oBFkTn296cjvQN3Iqy3NF+8bT3QWxezmi/MW8Ak="
     }
 }

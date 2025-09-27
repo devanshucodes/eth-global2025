@@ -5,7 +5,8 @@ A revolutionary AI-only company with hierarchical AI agents and token holder gov
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v14 or higher)
+- Node.js 18+ 
+- Python 3.9+
 - ASI:One API key from ASI Alliance
 
 ### Installation
@@ -28,18 +29,31 @@ cp env.example .env
 node database/setup.js
 ```
 
-4. **Start the system:**
+4. **Start the complete system:**
 ```bash
-# Terminal 1 - Backend
+# Terminal 1 - Node.js server
 npm start
 
-# Terminal 2 - Frontend
+# Terminal 2 - All uAgents (ASI Alliance)
+cd ai_uagents
+python3 ceo_uagent.py &
+python3 research_uagent.py &
+python3 product_uagent.py &
+python3 cmo_uagent.py &
+python3 cto_uagent.py &
+python3 head_engineering_uagent.py &
+python3 finance_uagent.py &
+python3 orchestrator_uagent.py &
+
+# Terminal 3 - Frontend (optional)
 npm run client
 ```
 
-5. **Access the dashboard:**
-- Open http://localhost:3000
-- You'll see the Token Holder Dashboard
+5. **Access the platform:**
+- **Main Platform**: http://localhost:5001 (Node.js server)
+- **Frontend**: http://localhost:3000 (React client)
+- **uAgents**: Ports 8001-8008 (individual agents)
+- **Complete Workflow**: Use "🎯 Run Complete Workflow" button
 
 ## 🎯 How It Works
 
@@ -57,6 +71,16 @@ npm run client
 11. **Developer Agent**: Receives prompts and opens Bolt.diy for website development
 
 ## 🔧 Recent Updates & Fixes
+
+### ASI Alliance API Documentation (January 2025)
+- ✅ **Comprehensive API Reference**: Added complete Agentverse API documentation to ASI_Alliance_Hackathon.md
+- ✅ **Search API**: Documented agent search endpoints with filtering, pagination, and semantic search
+- ✅ **Mailbox API**: Complete message envelope submission and retrieval documentation
+- ✅ **Agents API**: Full CRUD operations for agent registration, management, and team collaboration
+- ✅ **Python Examples**: Practical code examples for all major API endpoints
+- ✅ **Error Handling**: Standardized error responses and HTTP status codes
+- ✅ **Rate Limiting**: API usage limits and best practices documentation
+- ✅ **SDK Integration**: Examples for using official SDKs and libraries
 
 ### Time Duration Feature (December 2024)
 - ✅ **Agent Operation Duration**: Added time selection option (5, 10, 15 minutes) to create agent form
@@ -255,11 +279,16 @@ NODE_ENV=development npm start
 
 ## 🚀 Next Development Steps
 
-1. **Add Coding Agents**: Frontend/Backend agents for website development
-2. **Bolt Integration**: Connect agents to website building platform
-3. **Marketing Agent**: Social media automation
-4. **Real-time Updates**: WebSocket integration for live updates
-5. **Advanced UI**: Better dashboard with real-time agent activity
+1. **ASI Alliance Integration**: Implement Agentverse API for agent discovery and communication
+2. **MeTTa Knowledge Graphs**: Integrate SingularityNET's MeTTa for structured reasoning
+3. **Agentverse Registration**: Register agents on Agentverse for marketplace discovery
+4. **ASI:One Chat Protocol**: Enable direct human-agent interaction via ASI:One LLM
+5. **Multi-Agent Collaboration**: Advanced agent-to-agent communication using uAgents framework
+6. **Add Coding Agents**: Frontend/Backend agents for website development
+7. **Bolt Integration**: Connect agents to website building platform
+8. **Marketing Agent**: Social media automation
+9. **Real-time Updates**: WebSocket integration for live updates
+10. **Advanced UI**: Better dashboard with real-time agent activity
 
 ## 🎨 UI Redesign (Latest Update)
 

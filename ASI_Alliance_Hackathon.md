@@ -964,16 +964,536 @@ Agents offer flexibility of being designated as either public or private:
 - **Discoverability**: Organized description of communication protocols facilitates discovery
 - **Marketplace Integration**: Users can explore and interact with agents via Agentverse Marketplace
 
+## Agentverse API Reference
+
+The Agentverse provides a comprehensive REST API for managing agents, handling mailbox communications, and discovering agents within the ASI ecosystem. This API enables developers to integrate agent functionality into their applications and build sophisticated agent-based systems.
+
+### Base URL
+```
+https://agentverse.ai/v1
+```
+
+### Authentication
+Most endpoints require Bearer token authentication:
+```
+Authorization: Bearer <your_token>
+```
+
+### Search API
+
+#### Search Agents
+Search for agents in the Agentverse marketplace with advanced filtering and pagination options.
+
+**Endpoint:** `POST /v1/search/agents`
+
+**Request Body:**
+```json
+{
+  "filters": {
+    "category": "fetch-ai",
+    "type": "hosted",
+    "status": "active"
+  },
+  "search_text": "medical assistant",
+  "semantic_search": true,
+  "sort": "relevancy",
+  "direction": "desc",
+  "offset": 0,
+  "limit": 30,
+  "exclude_geo_agents": true,
+  "source": "agentverse"
+}
+```
+
+**Response:**
+```json
+{
+  "offset": 0,
+  "limit": 30,
+  "num_hits": 15,
+  "total": 150,
+  "search_id": "uuid4-string",
+  "agents": [
+    {
+      "name": "Medical Assistant Agent",
+      "address": "agent1q...",
+      "domain": "medical.example.com",
+      "prefix": "agent",
+      "readme": "A comprehensive medical assistant...",
+      "description": "AI agent for medical consultations",
+      "protocols": [
+        {
+          "name": "medical_protocol",
+          "version": "1.0",
+          "digest": "abc123..."
+        }
+      ],
+      "avatar_href": "https://example.com/avatar.png",
+      "total_interactions": 1250,
+      "recent_interactions": 45,
+      "rating": 4.8,
+      "status": "active",
+      "type": "hosted",
+      "featured": true,
+      "category": "fetch-ai",
+      "system_wide_tags": ["medical", "healthcare", "ai"],
+      "geo_location": {
+        "name": "Global",
+        "latitude": 0,
+        "longitude": 0
+      },
+      "handle": "medical_assistant",
+      "last_updated": "2024-01-15T10:30:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "recent_success_rate": 0.95,
+      "recent_eval_success_rate": 0.92
+    }
+  ]
+}
+```
+
+**Python Example:**
+```python
+import requests
+import json
+
+def search_agents(query, filters=None):
+    url = "https://agentverse.ai/v1/search/agents"
+    payload = {
+        "search_text": query,
+        "semantic_search": True,
+        "sort": "relevancy",
+        "direction": "desc",
+        "limit": 30
+    }
+    
+    if filters:
+        payload["filters"] = filters
+    
+    response = requests.post(url, json=payload)
+    return response.json()
+
+# Search for medical agents
+results = search_agents("medical assistant", {"category": "fetch-ai"})
+print(f"Found {results['num_hits']} agents")
+```
+
+#### Search Feedback
+Submit feedback when users click on search results for analytics.
+
+**Endpoint:** `POST /v1/search/agents/click`
+
+**Request Body:**
+```json
+{
+  "address": "agent1q...",
+  "search_id": "uuid4-string",
+  "page_index": 0,
+  "contract": "mainnet"
+}
+```
+
+### Mailbox API
+
+#### Submit Message Envelope
+Send messages between agents through the mailbox service.
+
+**Endpoint:** `POST /v1/submit`
+
+**Request Body:**
+```json
+{
+  "version": 1,
+  "sender": "agent1q...",
+  "target": "agent1q...",
+  "session": "uuid4-string",
+  "schema_digest": "abc123...",
+  "protocol_digest": "def456...",
+  "payload": "base64_encoded_message",
+  "expires": 1640995200,
+  "nonce": 12345,
+  "signature": "signature_string"
+}
+```
+
+**Python Example:**
+```python
+import base64
+import json
+from datetime import datetime, timedelta
+
+def send_message(sender_address, target_address, message_data):
+    url = "https://agentverse.ai/v1/submit"
+    
+    # Encode message payload
+    payload = base64.b64encode(json.dumps(message_data).encode()).decode()
+    
+    # Calculate expiration (1 hour from now)
+    expires = int((datetime.now() + timedelta(hours=1)).timestamp())
+    
+    envelope = {
+        "version": 1,
+        "sender": sender_address,
+        "target": target_address,
+        "session": "unique-session-id",
+        "schema_digest": "message_schema_digest",
+        "payload": payload,
+        "expires": expires,
+        "nonce": 12345
+    }
+    
+    response = requests.post(url, json=envelope)
+    return response.json()
+```
+
+#### List Mailbox Messages
+Retrieve messages from the mailbox with pagination.
+
+**Endpoint:** `GET /v1/mailbox`
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `size`: Page size (default: 50, max: 100)
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Response:**
+```json
+{
+  "items": [
+    {
+      "uuid": "uuid4-string",
+      "envelope": {
+        "version": 1,
+        "sender": "agent1q...",
+        "target": "agent1q...",
+        "session": "uuid4-string",
+        "schema_digest": "abc123...",
+        "payload": "base64_encoded_message",
+        "expires": 1640995200,
+        "nonce": 12345,
+        "signature": "signature_string"
+      },
+      "received_at": "2024-01-15T10:30:00Z",
+      "expires_at": "2024-01-15T11:30:00Z"
+    }
+  ],
+  "total": 25,
+  "page": 1,
+  "size": 50,
+  "pages": 1
+}
+```
+
+#### Get Specific Envelope
+Retrieve a specific message envelope by UUID.
+
+**Endpoint:** `GET /v1/mailbox/{uuid}`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+#### Delete Messages
+Delete all mailbox messages or a specific message.
+
+**Endpoints:**
+- `DELETE /v1/mailbox` - Delete all messages
+- `DELETE /v1/mailbox/{uuid}` - Delete specific message
+
+### Agents API
+
+#### List User Agents
+Get all agents belonging to the authenticated user.
+
+**Endpoint:** `GET /v1/agents`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `size`: Page size (default: 50, max: 100)
+
+**Response:**
+```json
+{
+  "items": [
+    {
+      "name": "My Medical Agent",
+      "address": "agent1q...",
+      "prefix": "agent",
+      "avatar_url": "https://example.com/avatar.png",
+      "readme": "A medical consultation agent...",
+      "short_description": "Medical AI assistant",
+      "pending_messages": 5,
+      "bytes_transferred": 1024000,
+      "previous_bytes_transferred": 512000,
+      "agent_type": "mailbox"
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "size": 50,
+  "pages": 1
+}
+```
+
+#### Register Agent
+Register a new agent on the platform.
+
+**Endpoint:** `POST /v1/agents`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "address": "agent1q...",
+  "challenge": "challenge_string",
+  "challenge_response": "response_string",
+  "agent_type": "mailbox",
+  "prefix": "agent",
+  "endpoint": "https://myagent.example.com"
+}
+```
+
+**Python Example:**
+```python
+def register_agent(address, challenge, response, agent_type="mailbox"):
+    url = "https://agentverse.ai/v1/agents"
+    headers = {
+        "Authorization": f"Bearer {your_token}",
+        "Content-Type": "application/json"
+    }
+    
+    payload = {
+        "address": address,
+        "challenge": challenge,
+        "challenge_response": response,
+        "agent_type": agent_type,
+        "prefix": "agent"
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()
+```
+
+#### Get Agent Details
+Retrieve detailed information about a specific agent.
+
+**Endpoint:** `GET /v1/agents/{address}`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Response:**
+```json
+{
+  "name": "Medical Assistant",
+  "address": "agent1q...",
+  "running": true,
+  "revision": 5,
+  "domain": "medical.example.com",
+  "prefix": "agent",
+  "compiled": true,
+  "code_digest": "abc123...",
+  "wallet_address": "fetch1q...",
+  "code_update_timestamp": "2024-01-15T10:30:00Z",
+  "creation_timestamp": "2024-01-01T00:00:00Z",
+  "avatar_url": "https://example.com/avatar.png",
+  "maintainer_id": "user123",
+  "readme": "A comprehensive medical assistant...",
+  "short_description": "AI-powered medical consultations",
+  "metadata": {
+    "category": "healthcare",
+    "tags": ["medical", "ai"]
+  },
+  "total_interactions": 1250
+}
+```
+
+#### Update Agent
+Update agent information and metadata.
+
+**Endpoint:** `PUT /v1/agents/{address}`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "name": "Updated Medical Assistant",
+  "readme": "Updated description...",
+  "avatar_url": "https://example.com/new-avatar.png",
+  "short_description": "Updated short description",
+  "agent_type": "mailbox"
+}
+```
+
+#### Delete Agent
+Remove an agent from the platform.
+
+**Endpoint:** `DELETE /v1/agents/{address}`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+### Team Agents API
+
+#### List Team Agents
+Get all agents belonging to a team.
+
+**Endpoint:** `GET /v1/mailroom/teams/{slug}/agents`
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+#### Get Team Agent
+Retrieve details of a specific team agent.
+
+**Endpoint:** `GET /v1/mailroom/teams/{slug}/agents/{address}`
+
+#### Update Team Agent
+Update team agent information.
+
+**Endpoint:** `PUT /v1/mailroom/teams/{slug}/agents/{address}`
+
+#### Delete Team Agent
+Remove a team agent.
+
+**Endpoint:** `DELETE /v1/mailroom/teams/{slug}/agents/{address}`
+
+### Public Agent Profiles
+
+#### Get Public Agent Profile
+Retrieve public information about any agent.
+
+**Endpoint:** `GET /v1/agents/{address}/profile`
+
+**No authentication required**
+
+**Response:**
+```json
+{
+  "name": "Medical Assistant",
+  "author_username": "developer123",
+  "address": "agent1q...",
+  "running": true,
+  "total_interactions": 1250,
+  "last_updated_at": "2024-01-15T10:30:00Z",
+  "created_at": "2024-01-01T00:00:00Z",
+  "domain": "medical.example.com",
+  "prefix": "agent",
+  "readme": "A comprehensive medical assistant...",
+  "short_description": "AI-powered medical consultations",
+  "maintainer_id": "user123",
+  "avatar_url": "https://example.com/avatar.png",
+  "metadata": {
+    "category": "healthcare"
+  }
+}
+```
+
+### Error Handling
+
+All API endpoints return standard HTTP status codes:
+
+- `200`: Success
+- `422`: Unprocessable Entity (validation errors)
+- `401`: Unauthorized (missing or invalid token)
+- `403`: Forbidden (insufficient permissions)
+- `404`: Not Found
+- `500`: Internal Server Error
+
+**Error Response Format:**
+```json
+{
+  "error": "Validation Error",
+  "message": "Invalid agent address format",
+  "details": {
+    "field": "address",
+    "code": "invalid_format"
+  }
+}
+```
+
+### Rate Limiting
+
+The API implements rate limiting to ensure fair usage:
+- **Search endpoints**: 100 requests per minute
+- **Mailbox endpoints**: 1000 requests per minute
+- **Agent management**: 60 requests per minute
+
+Rate limit headers are included in responses:
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640995200
+```
+
+### Best Practices
+
+1. **Always use HTTPS** for all API requests
+2. **Implement proper error handling** for all API calls
+3. **Cache agent search results** to reduce API calls
+4. **Use pagination** for large result sets
+5. **Store authentication tokens securely**
+6. **Implement retry logic** for transient failures
+7. **Monitor rate limits** to avoid throttling
+
+### SDK and Libraries
+
+While direct API access is available, consider using official SDKs:
+
+```python
+# Python SDK example
+from uagents import Agent
+from uagents.api import AgentverseAPI
+
+# Initialize API client
+api = AgentverseAPI(token="your_token")
+
+# Search for agents
+agents = api.search_agents("medical assistant")
+
+# Register your agent
+agent = Agent(name="my_agent", seed="your_seed")
+api.register_agent(agent)
+```
+
 ## Conclusion
 
 The ASI Alliance hackathon presents an exciting opportunity to build innovative AI agent systems that combine the power of Fetch.ai's decentralized agent framework with SingularityNET's MeTTa knowledge reasoning capabilities. The integration of these technologies enables developers to create sophisticated, autonomous agents that can reason over structured knowledge while maintaining the benefits of decentralization and blockchain technology.
 
 The comprehensive prize structure and clear judging criteria make this an excellent opportunity for developers to showcase their skills in building next-generation AI agent systems that can have real-world impact.
 
-With the detailed uAgents framework documentation provided above, developers have everything they need to:
+With the detailed uAgents framework documentation and comprehensive API reference provided above, developers have everything they need to:
 - Install and set up the uAgents framework
 - Create different types of agents (hosted, local, mailbox)
 - Implement agent communication patterns
 - Integrate with external services via MCP
 - Deploy and manage agents on Agentverse
 - Leverage the Almanac for agent discovery and communication
+- Use the Agentverse API for advanced agent management and discovery
+- Build sophisticated multi-agent systems with proper API integration

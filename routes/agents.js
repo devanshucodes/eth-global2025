@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const axios = require('axios');
 const CEOAgent = require('../agents/CEOAgent');
 const ResearchAgent = require('../agents/ResearchAgent');
 const ProductAgent = require('../agents/ProductAgent');
@@ -532,6 +533,41 @@ router.get('/test-asi-one-api', async (req, res) => {
       success: false, 
       error: error.response?.data || error.message,
       status: error.response?.status
+    });
+  }
+});
+
+// Complete workflow endpoint - calls the orchestrator
+router.post('/process-complete-workflow', async (req, res) => {
+  try {
+    const { user_input, idea_count = 1 } = req.body;
+    console.log('🎯 [ROUTE] Complete workflow endpoint called for:', user_input);
+    
+    if (!user_input) {
+      return res.status(400).json({ success: false, error: 'User input is required' });
+    }
+    
+    console.log('🎯 [ROUTE] Calling Workflow Orchestrator...');
+    const response = await axios.post('http://localhost:8008/process-business-idea', {
+      user_input,
+      idea_count
+    }, {
+      timeout: 300000 // 5 minutes timeout
+    });
+    
+    console.log('🎯 [ROUTE] Orchestrator returned:', {
+      success: response.data.success,
+      selected_idea: response.data.data?.idea?.title,
+      workflow_status: response.data.data?.workflow_summary?.workflow_status
+    });
+    
+    res.json(response.data);
+  } catch (error) {
+    console.error('❌ [ROUTE] Error in complete workflow:', error.message);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      message: 'Complete workflow failed'
     });
   }
 });

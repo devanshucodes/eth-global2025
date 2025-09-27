@@ -495,6 +495,87 @@ function App() {
     }
   };
 
+  const runCompleteWorkflow = async () => {
+    setLoading(true);
+    setCurrentAgent('Complete Workflow');
+    
+    // Clear all previous state to start fresh
+    setCurrentIdea(null);
+    setResearch(null);
+    setProduct(null);
+    setMarketingStrategy(null);
+    setTechnicalStrategy(null);
+    setBoltPrompt(null);
+    setAgentActivity([]);
+    
+    setAgentActivity(prev => [...prev, { agent: 'Complete Workflow', action: 'Starting complete AI company workflow...', time: new Date().toLocaleTimeString() }]);
+    
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+      const response = await fetch(`${apiUrl}/api/agents/process-complete-workflow`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          user_input: "I want to start an AI company that helps small businesses",
+          idea_count: 1 
+        }),
+      });
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        const workflowData = data.data;
+        
+        // Set all the workflow data
+        if (workflowData.idea) {
+          setCurrentIdea(workflowData.idea);
+          setAgentActivity(prev => [...prev, { agent: 'CEO Agent', action: `Generated idea: ${workflowData.idea.title}`, time: new Date().toLocaleTimeString() }]);
+        }
+        
+        if (workflowData.research) {
+          setResearch(workflowData.research);
+          setAgentActivity(prev => [...prev, { agent: 'Research Agent', action: 'Market research completed', time: new Date().toLocaleTimeString() }]);
+        }
+        
+        if (workflowData.product) {
+          setProduct(workflowData.product);
+          setAgentActivity(prev => [...prev, { agent: 'Product Agent', action: `Product concept: ${workflowData.product.product_name}`, time: new Date().toLocaleTimeString() }]);
+        }
+        
+        if (workflowData.marketing) {
+          setMarketingStrategy(workflowData.marketing);
+          setAgentActivity(prev => [...prev, { agent: 'CMO Agent', action: 'Marketing strategy completed', time: new Date().toLocaleTimeString() }]);
+        }
+        
+        if (workflowData.technical) {
+          setTechnicalStrategy(workflowData.technical);
+          setAgentActivity(prev => [...prev, { agent: 'CTO Agent', action: 'Technical strategy completed', time: new Date().toLocaleTimeString() }]);
+        }
+        
+        if (workflowData.bolt_prompt) {
+          setBoltPrompt(workflowData.bolt_prompt);
+          setAgentActivity(prev => [...prev, { agent: 'Head of Engineering', action: 'Bolt prompt created', time: new Date().toLocaleTimeString() }]);
+        }
+        
+        if (workflowData.finance) {
+          setAgentActivity(prev => [...prev, { agent: 'Finance Agent', action: `Revenue analysis: $${workflowData.finance.revenue_projection?.most_likely?.toLocaleString()}`, time: new Date().toLocaleTimeString() }]);
+        }
+        
+        setAgentActivity(prev => [...prev, { agent: 'Complete Workflow', action: '🎉 Complete workflow executed successfully!', time: new Date().toLocaleTimeString() }]);
+        console.log('🎯 [FRONTEND] Complete workflow executed:', workflowData.workflow_summary);
+      } else {
+        setAgentActivity(prev => [...prev, { agent: 'Complete Workflow', action: `Error: ${data.message || 'Workflow failed'}`, time: new Date().toLocaleTimeString() }]);
+      }
+    } catch (error) {
+      console.error('Error running complete workflow:', error);
+      setAgentActivity(prev => [...prev, { agent: 'Complete Workflow', action: `Error: ${error.message}`, time: new Date().toLocaleTimeString() }]);
+    } finally {
+      setLoading(false);
+      setCurrentAgent(null);
+    }
+  };
+
   const researchIdea = async () => {
     if (!currentIdea) return;
     
@@ -1572,6 +1653,13 @@ function App() {
             </div>
             
             <div className="controls">
+              <button 
+                onClick={runCompleteWorkflow}
+                className="complete-workflow-btn"
+                disabled={loading}
+              >
+                {loading ? '⏳ Running...' : '🎯 Run Complete Workflow'}
+              </button>
               <button 
                 onClick={() => {
                   setCurrentIdea(null);
