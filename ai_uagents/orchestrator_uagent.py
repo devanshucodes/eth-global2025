@@ -114,15 +114,18 @@ class OrchestratoruAgent(BaseUAgent):
         print(f"🎯 [{self.name}] Starting complete workflow...")
         
         try:
-            # Step 1: CEO generates business ideas
-            print(f"🎯 [{self.name}] Step 1: CEO generating {idea_count} business ideas...")
-            ceo_response = await self.call_ceo_agent(idea_count)
-            if not ceo_response or not ceo_response.get('ideas'):
-                raise Exception("CEO agent failed to generate ideas")
+            # Step 1: Use user input as business concept (no automatic idea generation)
+            print(f"🎯 [{self.name}] Step 1: Using user business concept...")
             
-            # Select the first idea for the workflow
-            selected_idea = ceo_response['ideas'][0]
-            print(f"🎯 [{self.name}] Selected idea: {selected_idea.get('title', 'Unknown')}")
+            # Create a business concept from user input
+            selected_idea = {
+                "title": f"User Business: {user_input}",
+                "description": f"Business concept provided by user: {user_input}",
+                "revenue_model": "To be determined by workflow",
+                "success_factors": "User-driven business development"
+            }
+            
+            print(f"🎯 [{self.name}] Using user business concept: {selected_idea.get('title', 'Unknown')}")
             
             # Step 2: Research analyzes the idea
             print(f"🎯 [{self.name}] Step 2: Research analyzing market...")
