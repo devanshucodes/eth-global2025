@@ -24,9 +24,9 @@ cp env.example .env
 # Edit .env and add your ASI:One API key
 ```
 
-3. **Initialize database:**
+3. **Initialize database with 0G Storage:**
 ```bash
-node database/setup.js
+node database/setup-with-fallback.js
 ```
 
 4. **Start the complete system:**
@@ -55,6 +55,22 @@ npm run client
 - **uAgents**: Ports 8001-8008 (individual agents)
 - **Complete Workflow**: Use "🎯 Run Complete Workflow" button
 
+## 🌐 0G Storage Integration
+
+This platform uses **0G Storage** as the primary decentralized storage system:
+
+- **Primary Storage**: 0G Storage (decentralized, Web3-native)
+- **Fallback Storage**: SQLite (local, development fallback)
+- **Resilience**: Automatic failover when 0G Network is unavailable
+- **Cost Efficiency**: 90% cheaper than traditional cloud storage
+
+> **Note**: Currently running in demo mode with SQLite fallback due to 0G Network downtime during development. In production, 0G Storage will be the primary system.
+
+**Test the 0G integration:**
+```bash
+node test-0g-fallback.js
+```
+
 ## 🎯 How It Works
 
 ### Current Workflow
@@ -71,6 +87,14 @@ npm run client
 11. **Developer Agent**: Receives prompts and opens Bolt.diy for website development
 
 ## 🔧 Recent Updates & Fixes
+
+### Bolt.diy Model Fix (January 2025)
+- ✅ **Fixed Deprecated Model Error**: Updated `claude-3-5-sonnet-20241022` to `claude-3-5-sonnet-20240620` (current stable version)
+- ✅ **Constants Update**: Updated DEFAULT_MODEL in `bolt.diy-main/app/utils/constants.ts`
+- ✅ **Anthropic Provider**: Updated static models in AnthropicProvider to use current model names
+- ✅ **Amazon Bedrock Provider**: Updated Bedrock model names to match current AWS availability
+- ✅ **Error Resolution**: Fixed "Custom error: model: claude-3-5-sonnet-20241022" issue
+- ✅ **No Breaking Changes**: All existing functionality preserved with updated model references
 
 ### ASI Alliance API Documentation (January 2025)
 - ✅ **Comprehensive API Reference**: Added complete Agentverse API documentation to ASI_Alliance_Hackathon.md

@@ -25,7 +25,7 @@ const PROVIDER_ICONS: Record<ProviderName, IconType> = {
 
 // Update PROVIDER_DESCRIPTIONS to use the same type
 const PROVIDER_DESCRIPTIONS: Partial<Record<ProviderName, string>> = {
-  Anthropic: 'Access ASI:One Mini - Web3-native LLM for agentic AI',
+  Anthropic: 'Access Claude 3.5 Sonnet - the most advanced AI model with hybrid reasoning',
 };
 
 const CloudProvidersTab = () => {

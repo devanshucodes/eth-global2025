@@ -193,7 +193,7 @@ export default function McpTab() {
             />
           </div>
           <div className="mt-2 text-sm text-bolt-elements-textSecondary">
-            The MCP configuration format is identical to the one used in ASI:One Desktop.
+            The MCP configuration format is identical to the one used in Claude Desktop.
             <a
               href="https://modelcontextprotocol.io/examples"
               target="_blank"

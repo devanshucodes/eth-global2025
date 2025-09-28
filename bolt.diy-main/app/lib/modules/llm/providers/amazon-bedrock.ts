@@ -21,8 +21,8 @@ export default class AmazonBedrockProvider extends BaseProvider {
 
   staticModels: ModelInfo[] = [
     {
-      name: 'anthropic.asi1-mini-v1:0',
-      label: 'ASI:One Mini (Bedrock)',
+      name: 'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      label: 'Claude 3.5 Sonnet (Bedrock)',
       provider: 'AmazonBedrock',
       maxTokenAllowed: 200000,
     },

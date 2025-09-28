@@ -29,11 +29,11 @@ export default class OpenRouterProvider extends BaseProvider {
   staticModels: ModelInfo[] = [
     /*
      * Essential fallback models - only the most stable/reliable ones
-     * ASI:One Mini via OpenRouter: 200k context
+     * Claude 3.5 Sonnet via OpenRouter: 200k context
      */
     {
-      name: 'asi/asi1-mini',
-      label: 'ASI:One Mini',
+      name: 'anthropic/claude-3.5-sonnet',
+      label: 'Claude 3.5 Sonnet',
       provider: 'OpenRouter',
       maxTokenAllowed: 200000,
     },

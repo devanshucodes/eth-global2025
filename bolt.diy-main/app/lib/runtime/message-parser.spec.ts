@@ -320,7 +320,7 @@ package.json:
       });
     });
 
-    describe('ASI:One style outputs', () => {
+    describe('Claude style outputs', () => {
       it('should handle create file instructions', () => {
         const input = `I'll create a new configuration file for you.
 
@@ -333,7 +333,7 @@ export const config = {
 };
 \`\`\``;
 
-        parser.parse('test_asi_one_1', input);
+        parser.parse('test_claude_1', input);
 
         expect(callbacks.onArtifactOpen).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -367,7 +367,7 @@ export const config = {
 }
 \`\`\``;
 
-        parser.parse('test_asi_one_2', input);
+        parser.parse('test_claude_2', input);
 
         expect(callbacks.onArtifactOpen).toHaveBeenCalledWith(
           expect.objectContaining({
