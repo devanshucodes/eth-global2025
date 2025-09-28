@@ -2,16 +2,14 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const CMOAgent = require('../agents/CMOAgent');
-const DeveloperAgent = require('../agents/DeveloperAgent');
 const db = require('../database/setup');
 
-// Initialize only Marketing and Developer agents (Node.js)
+// Initialize only Marketing agent (Node.js) - DeveloperAgent removed since bolt.diy handles website creation
 // Other agents (CEO, Research, Product, CTO, Head of Engineering, Finance) run as uAgents
 console.log('🔑 [DEBUG] ASI_ONE_API_KEY exists:', !!process.env.ASI_ONE_API_KEY);
 console.log('🔑 [DEBUG] ASI_ONE_API_KEY length:', process.env.ASI_ONE_API_KEY?.length || 0);
 console.log('🔑 [DEBUG] ASI_ONE_API_KEY starts with sk_:', process.env.ASI_ONE_API_KEY?.startsWith('sk_') || false);
 const cmoAgent = new CMOAgent(process.env.ASI_ONE_API_KEY);
-const developerAgent = new DeveloperAgent(process.env.ASI_ONE_API_KEY);
 
 // ===== MARKETING AGENT ROUTES (Node.js) =====
 
@@ -93,14 +91,14 @@ router.post('/bolt-prompt', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Idea and product data are required' });
     }
     
-    console.log('🔧 [ROUTE] Calling Developer Agent...');
-    const boltPromptData = await developerAgent.createBoltPrompt(
-      idea, 
-      product, 
-      research, 
-      marketingStrategy, 
-      technicalStrategy
-    );
+    console.log('🔧 [ROUTE] DeveloperAgent removed - using bolt.diy instead');
+    // DeveloperAgent removed since bolt.diy handles website creation
+    const boltPromptData = {
+      website_title: `${product.product_name} - Website`,
+      pages_required: ['Home', 'About', 'Services', 'Contact'],
+      functional_requirements: ['Responsive design', 'Contact form', 'SEO optimization'],
+      bolt_prompt: `Create a website for ${product.product_name} with modern design and user-friendly interface`
+    };
     
     console.log('🔧 [ROUTE] Developer Agent returned:', {
       website_title: boltPromptData.website_title,
@@ -162,7 +160,13 @@ router.post('/bolt-prompt/:ideaId', async (req, res) => {
             timeline: { phases: [{ phase: 'Development', duration: '3 months' }] }
           };
           
-          const boltPrompt = await developerAgent.createBoltPrompt(idea, productData, researchData, marketingStrategy, technicalStrategy);
+          // DeveloperAgent removed - using bolt.diy instead
+          const boltPrompt = {
+            website_title: `${productData.product_name} - Website`,
+            pages_required: ['Home', 'About', 'Services', 'Contact'],
+            functional_requirements: ['Responsive design', 'Contact form', 'SEO optimization'],
+            bolt_prompt: `Create a website for ${productData.product_name} with modern design and user-friendly interface`
+          };
           
           // Save bolt prompt to database
           const stmt = db.prepare(`
@@ -218,7 +222,7 @@ router.post('/process-complete-workflow', async (req, res) => {
       user_input,
       idea_count
     }, {
-      timeout: 300000 // 5 minutes timeout
+      timeout: 600000 // 10 minutes timeout
     });
     
     console.log('🎯 [ROUTE] Orchestrator returned:', {

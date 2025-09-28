@@ -181,7 +181,7 @@ class OrchestratoruAgent(BaseUAgent):
                 "technical": technical_response,
                 "bolt_prompt": bolt_response,
                 "finance": finance_response,
-                "all_ideas": ceo_response.get('ideas', [])
+                "all_ideas": [selected_idea]
             }
             
             print(f"🎯 [{self.name}] Complete workflow finished successfully!")
@@ -197,7 +197,7 @@ class OrchestratoruAgent(BaseUAgent):
             response = requests.post(
                 f"http://localhost:{self.agent_ports['ceo']}/generate-ideas",
                 json={"count": idea_count},
-                timeout=45
+                timeout=90
             )
             response.raise_for_status()
             return response.json()
@@ -206,17 +206,35 @@ class OrchestratoruAgent(BaseUAgent):
             return None
     
     async def call_research_agent(self, idea: Dict[str, Any]) -> Dict[str, Any]:
-        """Call Research agent to analyze market"""
+        """Call MeTTa-enhanced Research agent to analyze market"""
         try:
+            print(f"🧠 [{self.name}] Calling MeTTa-enhanced Research agent...")
             response = requests.post(
-                f"http://localhost:{self.agent_ports['research']}/research-idea",
+                "http://localhost:8009/research-idea-metta",
                 json={"idea": idea},
-                timeout=45
+                timeout=120
             )
             response.raise_for_status()
-            return response.json()
+            metta_response = response.json()
+            
+            # Extract the core research data from MeTTa response
+            research_data = {
+                "competitors": metta_response.get("competitors", []),
+                "market_analysis": metta_response.get("market_analysis", {}),
+                "recommendations": metta_response.get("recommendations", {}),
+                # Add MeTTa insights
+                "metta_insights": {
+                    "historical_context": metta_response.get("historical_context", ""),
+                    "similar_research": metta_response.get("similar_research", []),
+                    "market_patterns": metta_response.get("market_patterns", {}),
+                    "success_factors": metta_response.get("success_factors", [])
+                }
+            }
+            
+            print(f"🧠 [{self.name}] MeTTa Research completed with {len(metta_response.get('similar_research', []))} similar studies found")
+            return research_data
         except Exception as e:
-            print(f"❌ [{self.name}] Research agent call failed: {e}")
+            print(f"❌ [{self.name}] MeTTa Research agent call failed: {e}")
             return None
     
     async def call_product_agent(self, idea: Dict[str, Any], research: Dict[str, Any]) -> Dict[str, Any]:
@@ -225,7 +243,7 @@ class OrchestratoruAgent(BaseUAgent):
             response = requests.post(
                 f"http://localhost:{self.agent_ports['product']}/develop-product",
                 json={"idea": idea, "research": research},
-                timeout=45
+                timeout=90
             )
             response.raise_for_status()
             return response.json()
@@ -239,7 +257,7 @@ class OrchestratoruAgent(BaseUAgent):
             response = requests.post(
                 f"http://localhost:{self.agent_ports['cmo']}/develop-marketing",
                 json={"idea": idea, "product": product, "research": research},
-                timeout=45
+                timeout=90
             )
             response.raise_for_status()
             return response.json()
@@ -253,7 +271,7 @@ class OrchestratoruAgent(BaseUAgent):
             response = requests.post(
                 f"http://localhost:{self.agent_ports['cto']}/develop-technical",
                 json={"idea": idea, "product": product, "research": research},
-                timeout=60
+                timeout=120
             )
             response.raise_for_status()
             return response.json()
@@ -275,7 +293,7 @@ class OrchestratoruAgent(BaseUAgent):
                     "marketing_strategy": marketing, 
                     "technical_strategy": technical
                 },
-                timeout=60
+                timeout=120
             )
             response.raise_for_status()
             return response.json()
@@ -289,7 +307,7 @@ class OrchestratoruAgent(BaseUAgent):
             response = requests.post(
                 f"http://localhost:{self.agent_ports['finance']}/analyze-revenue",
                 json={"idea_data": idea, "product_data": product},
-                timeout=45
+                timeout=90
             )
             response.raise_for_status()
             return response.json()

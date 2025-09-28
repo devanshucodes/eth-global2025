@@ -235,8 +235,12 @@ Format your response as JSON:
                     print(f"❌ [{self.name}] JSON parsing failed, using fallback data")
                     strategy_data = self.get_fallback_strategy_data()
                 
-                # Convert to response models
-                technology_stack = TechnologyStack(**strategy_data.get('technology_stack', {}))
+                # Convert to response models with validation
+                tech_stack_data = strategy_data.get('technology_stack', {})
+                # Ensure database is a string
+                if 'database' in tech_stack_data and not isinstance(tech_stack_data['database'], str):
+                    tech_stack_data['database'] = str(tech_stack_data['database'])
+                technology_stack = TechnologyStack(**tech_stack_data)
                 architecture = Architecture(**strategy_data.get('architecture', {}))
                 development_methodology = DevelopmentMethodology(**strategy_data.get('development_methodology', {}))
                 security_compliance = SecurityCompliance(**strategy_data.get('security_compliance', {}))
@@ -400,8 +404,12 @@ Format your response as JSON:
                     print(f"❌ [{self.name}] REST: JSON parsing failed, using fallback data")
                     strategy_data = self.get_fallback_strategy_data()
                 
-                # Convert to response models
-                technology_stack = TechnologyStack(**strategy_data.get('technology_stack', {}))
+                # Convert to response models with validation
+                tech_stack_data = strategy_data.get('technology_stack', {})
+                # Ensure database is a string
+                if 'database' in tech_stack_data and not isinstance(tech_stack_data['database'], str):
+                    tech_stack_data['database'] = str(tech_stack_data['database'])
+                technology_stack = TechnologyStack(**tech_stack_data)
                 architecture = Architecture(**strategy_data.get('architecture', {}))
                 development_methodology = DevelopmentMethodology(**strategy_data.get('development_methodology', {}))
                 security_compliance = SecurityCompliance(**strategy_data.get('security_compliance', {}))

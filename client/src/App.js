@@ -777,45 +777,56 @@ function App() {
         time: new Date().toLocaleTimeString() 
       }]);
       
-      const ctoResponse = await fetch(`${apiUrl}/api/agents/technical-strategy`, {
+      // Use orchestrator for complete workflow instead of individual agent calls
+      const ctoResponse = await fetch(`${apiUrl}/api/agents/process-complete-workflow`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          idea: ideaData,
-          product: productData
+          user_input: ideaData.title || "AI-powered business solution",
+          idea_count: 1
         }),
       });
       const ctoData = await ctoResponse.json();
       
-      if (ctoData.success) {
-        setTechnicalStrategy(ctoData.strategy);
-        setAgentActivity(prev => [...prev, { 
-          agent: 'CTO Agent', 
-          action: `Technical strategy complete! ${Object.keys(ctoData.strategy.technology_stack || {}).length} tech components planned`, 
-          time: new Date().toLocaleTimeString() 
-        }]);
+      if (ctoData.success && ctoData.data) {
+        const workflowData = ctoData.data;
         
-        // Trigger Head of Engineering after CTO completes
-        setTimeout(() => {
+        // Set all the workflow data
+        if (workflowData.technical) {
+          setTechnicalStrategy(workflowData.technical);
           setAgentActivity(prev => [...prev, { 
-            agent: '🔄 Data Transfer', 
-            action: 'Technical strategy shared with Head of Engineering', 
+            agent: 'CTO Agent', 
+            action: `Technical strategy complete! ${Object.keys(workflowData.technical.technology_stack || {}).length} tech components planned`, 
             time: new Date().toLocaleTimeString() 
           }]);
+        }
+        
+        if (workflowData.bolt_prompt) {
+          setBoltPrompt(workflowData.bolt_prompt);
           setAgentActivity(prev => [...prev, { 
             agent: 'Head of Engineering', 
-            action: 'Creating developer prompt for website development...', 
+            action: 'Bolt prompt created for website development', 
             time: new Date().toLocaleTimeString() 
           }]);
-          createBoltPromptWithData(ideaData, productData, researchData, cmoData.strategy, ctoData.strategy);
-        }, 2000);
+        }
+        
+        if (workflowData.marketing) {
+          setMarketingStrategy(workflowData.marketing);
+          setAgentActivity(prev => [...prev, { 
+            agent: 'CMO Agent', 
+            action: 'Marketing strategy completed', 
+            time: new Date().toLocaleTimeString() 
+          }]);
+        }
+        
+        // All agents completed via orchestrator - no need for individual calls
       }
       
       setAgentActivity(prev => [...prev, { 
         agent: 'System', 
-        action: '🎉 All agents complete! Product ready for development!', 
+        action: '🎉 Complete workflow executed! All agents finished successfully!', 
         time: new Date().toLocaleTimeString() 
       }]);
       
